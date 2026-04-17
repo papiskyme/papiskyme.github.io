@@ -2,30 +2,23 @@
 <html lang="zh">
 <head>
  <meta charset="UTF-8">
- <title>WebGL 手势控制爱心粒子</title>
+ <title>Sky梦想网 - 爱心粒子</title>
  <style>
      body { margin: 0; overflow: hidden; background-color: #000; }
      #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
      /* 隐藏摄像头视频流，只用于后台分析 */
      .input_video { display: none; }
-     #loading {
          position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
          color: white; font-family: sans-serif; font-size: 24px; pointer-events: none; z-index: 10;
      }
  </style>
  <!-- 引入 Three.js -->
  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
- <!-- 引入 MediaPipe Hands -->
- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
-<div id="loading">正在加载模型与摄像头...<br>请允许摄像头权限</div>
+<div id="loading">正在加载模型...</div>
 <div id="canvas-container"></div>
-<video class="input_video"></video>
 
 <script>
  // --- 1. Three.js 场景初始化 ---
@@ -95,77 +88,18 @@
  let gatherFactor = 0; // 0 = 完全散开, 1 = 完全聚合成爱心
  let targetGatherFactor = 0; // 目标聚合度，由手势控制
 
- // --- 4. MediaPipe Hands 配置 ---
- const videoElement = document.getElementsByClassName('input_video')[0];
-
- function onResults(results) {
-     document.getElementById('loading').style.display = 'none';
-
-     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-         const landmarks = results.multiHandLandmarks[0];
-
-         // 计算手掌开合程度
-         // 简单算法：计算拇指指尖(4)与其他四指指尖(8,12,16,20)到手腕(0)的平均距离
-         const wrist = landmarks[0];
-         const fingerTips = [4, 8, 12, 16, 20];
-         let totalDist = 0;
-
-         fingerTips.forEach(idx => {
-             const tip = landmarks[idx];
-             const dist = Math.sqrt(
-                 Math.pow(tip.x - wrist.x, 2) + 
-                 Math.pow(tip.y - wrist.y, 2)
-             );
-             totalDist += dist;
-         });
-
-         const avgDist = totalDist / 5;
-
-         // 经验阈值：
-         // 握拳时，指尖距离手腕很近 (avgDist 约 0.1 - 0.2)
-         // 张开时，指尖距离手腕较远 (avgDist 约 0.4 - 0.6)
-         // 我们做一个映射：握拳(distance small) -> 聚合(factor 1), 张开 -> 散开(factor 0)
-         
-         // 动态调整这些阈值以适应摄像头的距离
-         const closeThreshold = 0.25; 
-         const openThreshold = 0.5;
-
-         let normalized = (avgDist - closeThreshold) / (openThreshold - closeThreshold);
-         normalized = 1 - Math.min(Math.max(normalized, 0), 1); // 反转：距离越小(握拳)，值越大(1)
-
-         targetGatherFactor = normalized; 
-
-     } else {
-         // 如果没有检测到手，默认缓慢散开
-         targetGatherFactor = 0;
-     }
- }
-
- const hands = new Hands({locateFile: (file) => {
-     return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
- }});
-
- hands.setOptions({
-     maxNumHands: 1,
-     modelComplexity: 1,
-     minDetectionConfidence: 0.5,
-     minTrackingConfidence: 0.5
- });
-
- hands.onResults(onResults);
-
- const cameraUtils = new Camera(videoElement, {
-     onFrame: async () => {
-         await hands.send({image: videoElement});
-     },
-     width: 640,
-     height: 480
- });
- cameraUtils.start();
+ // --- 4. 随机爱心展示 ---
+ // 每3秒随机聚合或散开爱心
+ setInterval(() => {
+     targetGatherFactor = Math.random();
+ }, 3000);
 
  // --- 5. 动画循环 ---
  function animate() {
      requestAnimationFrame(animate);
+
+     // 隐藏加载消息
+     document.getElementById('loading').style.display = 'none';
 
      // 粒子自身旋转动画
      particles.rotation.y += 0.002;
@@ -206,4 +140,3 @@
 </script>
 </body>
 </html>
-
