@@ -1,0 +1,128 @@
+/* 全局样式 */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+/* 容器 */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 头部 */
+header {
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2em;
+}
+
+header a {
+  color: white;
+  text-decoration: none;
+}
+
+/* 主要内容 */
+main {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* 文章预览 */
+.post-preview {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.post-preview h3 {
+  margin-top: 0;
+}
+
+.post-preview a {
+  color: #333;
+  text-decoration: none;
+}
+
+.post-preview a:hover {
+  color: #4CAF50;
+}
+
+.post-meta {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+/* 文章内容 */
+.post-content {
+  line-height: 1.8;
+}
+
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 10px 0;
+}
+
+.post-content iframe {
+  max-width: 100%;
+  margin: 10px 0;
+}
+
+.post-content h2 {
+  margin-top: 30px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.post-content h3 {
+  margin-top: 20px;
+}
+
+.post-content p {
+  margin-bottom: 15px;
+}
+
+.post-content ul, .post-content ol {
+  margin-bottom: 15px;
+  padding-left: 20px;
+}
+
+/* 页脚 */
+footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  header h1 {
+    font-size: 1.5em;
+  }
+  
+  main {
+    padding: 15px;
+  }
+}

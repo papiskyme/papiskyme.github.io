@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= post.title %> - 预览</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .btn:hover {
+      background-color: #45a049;
+    }
+    article {
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .post-meta {
+      color: #666;
+      font-size: 0.9em;
+      margin-bottom: 20px;
+    }
+    .post-content {
+      line-height: 1.8;
+    }
+    .post-content img {
+      max-width: 100%;
+      height: auto;
+    }
+    .post-content iframe {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>文章预览</h1>
+    <a href="/admin" class="btn">返回管理后台</a>
+  </header>
+  <div class="container">
+    <article>
+      <h2><%= post.title %></h2>
+      <p class="post-meta">发布日期: <%= post.date %></p>
+      <div class="post-content">
+        <%= post.content %>
+      </div>
+    </article>
+  </div>
+</body>
+</html>

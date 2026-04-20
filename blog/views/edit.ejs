@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= post ? '编辑文章' : '新建文章' %></title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 16px;
+      text-decoration: none;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #45a049;
+    }
+    .btn-secondary {
+      background-color: #666;
+    }
+    .btn-secondary:hover {
+      background-color: #555;
+    }
+    form {
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 400px;
+      resize: vertical;
+      font-family: monospace;
+    }
+    .editor-toolbar {
+      background-color: #f8f8f8;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      display: flex;
+      gap: 10px;
+    }
+    .toolbar-btn {
+      background-color: white;
+      border: 1px solid #ddd;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .toolbar-btn:hover {
+      background-color: #f0f0f0;
+    }
+    .video-embed {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .video-embed input {
+      width: calc(100% - 100px);
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><%= post ? '编辑文章' : '新建文章' %></h1>
+    <a href="/admin" class="btn btn-secondary">返回管理后台</a>
+  </header>
+  <div class="container">
+    <form action="/admin/save" method="POST">
+      <% if (post) { %>
+        <input type="hidden" name="id" value="<%= post.id %>">
+      <% } %>
+      <div class="form-group">
+        <label for="title">标题</label>
+        <input type="text" id="title" name="title" value="<%= post ? post.title : '' %>" required>
+      </div>
+      <div class="form-group">
+        <label for="date">日期</label>
+        <input type="date" id="date" name="date" value="<%= post ? post.date : new Date().toISOString().split('T')[0] %>">
+      </div>
+      <div class="form-group">
+        <label for="content">内容</label>
+        <div class="editor-toolbar">
+          <button type="button" class="toolbar-btn" onclick="insertMarkdown('**', '**')">粗体</button>
+          <button type="button" class="toolbar-btn" onclick="insertMarkdown('*', '*')">斜体</button>
+          <button type="button" class="toolbar-btn" onclick="insertMarkdown('```\n', '\n```')">代码块</button>
+          <button type="button" class="toolbar-btn" onclick="insertMarkdown('![alt](', ')')">图片</button>
+          <button type="button" class="toolbar-btn" onclick="insertMarkdown('[链接](', ')')">链接</button>
+          <button type="button" class="toolbar-btn" onclick="showVideoEmbed()">视频</button>
+          <button type="button" class="toolbar-btn" onclick="uploadImage()">上传图片</button>
+        </div>
+        <textarea id="content" name="content" required><%= post ? post.content : '' %></textarea>
+      </div>
+      <div class="video-embed" id="videoEmbed" style="display: none;">
+        <label>视频链接（支持优酷等）</label>
+        <input type="text" id="videoUrl" placeholder="输入视频链接">
+        <button type="button" class="btn" onclick="insertVideo()">插入视频</button>
+      </div>
+      <button type="submit" class="btn">保存</button>
+    </form>
+  </div>
+  <script>
+    function insertMarkdown(prefix, suffix) {
+      const textarea = document.getElementById('content');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      const selectedText = text.substring(start, end);
+      const newText = text.substring(0, start) + prefix + selectedText + suffix + text.substring(end);
+      textarea.value = newText;
+      textarea.focus();
+      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
+    }
+
+    function showVideoEmbed() {
+      document.getElementById('videoEmbed').style.display = 'block';
+    }
+
+    function insertVideo() {
+      const videoUrl = document.getElementById('videoUrl').value;
+      if (videoUrl) {
+        // 生成视频嵌入代码
+        let embedCode = '';
+        if (videoUrl.includes('youku.com')) {
+          // 处理优酷视频
+          const match = videoUrl.match(/id_(\w+)\.html/);
+          if (match) {
+            const videoId = match[1];
+            embedCode = `<iframe height=498 width=510 src="https://player.youku.com/embed/${videoId}" frameborder=0 allowfullscreen></iframe>`;
+          }
+        } else {
+          // 通用视频嵌入
+          embedCode = `<iframe src="${videoUrl}" width="560" height="315" frameborder="0" allowfullscreen></iframe>`;
+        }
+        
+        if (embedCode) {
+          const textarea = document.getElementById('content');
+          const start = textarea.selectionStart;
+          const text = textarea.value;
+          const newText = text.substring(0, start) + embedCode + text.substring(start);
+          textarea.value = newText;
+          textarea.focus();
+          textarea.setSelectionRange(start + embedCode.length, start + embedCode.length);
+        }
+        
+        // 清空输入并隐藏视频嵌入区域
+        document.getElementById('videoUrl').value = '';
+        document.getElementById('videoEmbed').style.display = 'none';
+      }
+    }
+
+    function uploadImage() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = function(e) {
+        const formData = new FormData();
+        formData.append('image', e.target.files[0]);
+        
+        fetch('/upload', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.url) {
+            insertMarkdown('![图片]', `(${data.url})`);
+          }
+        })
+        .catch(error => console.error('上传失败:', error));
+      };
+      input.click();
+    }
+  </script>
+</body>
+</html>
