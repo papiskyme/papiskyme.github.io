@@ -6,8 +6,8 @@
  <style>
      body { margin: 0; overflow: hidden; background-color: #000; }
      #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
-     /* 隐藏摄像头视频流，只用于后台分析 */
-     .input_video { display: none; }
+     /* 摄像头视频流默认隐藏，后续根据用户选择显示或隐藏 */
+    .input_video { display: none; position: fixed; bottom: 10px; right: 10px; width: 200px; height: 150px; z-index: 100; border: 2px solid #fff; border-radius: 8px; }
      #loading {
          position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
          color: white; font-family: sans-serif; font-size: 24px; pointer-events: none; z-index: 10;
@@ -28,6 +28,23 @@
 <video class="input_video"></video>
 
 <script>
+ // --- 0. 用户选择是否显示摄像头 --- 
+ function askUserToShowCamera() {
+     const userChoice = confirm('是否显示摄像头视频流？\n\n选择"确定"将显示摄像头画面，选择"取消"将隐藏摄像头画面。');
+     const videoElement = document.getElementsByClassName('input_video')[0];
+     if (userChoice) {
+         videoElement.style.display = 'block';
+     } else {
+         videoElement.style.display = 'none';
+     }
+ }
+ 
+ // 页面加载完成后显示弹窗
+ window.onload = function() {
+     // 延迟一下，确保摄像头权限已经被用户授予
+     setTimeout(askUserToShowCamera, 1000);
+ };
+ 
  // --- 1. Three.js 场景初始化 ---
  const scene = new THREE.Scene();
  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
